@@ -1,37 +1,57 @@
 "use client";
 import { useMemo, useState } from "react";
-import type { DocWithBody } from "@/lib/notion";
 
-export default function DocsAccordion({ docs }: { docs: DocWithBody[] }) {
+export interface AccordionItem {
+  id: string;
+  title: string;
+  summary?: string;
+  meta?: string;
+  tags?: string[];
+  group?: string;
+  bodyHtml: string;
+}
+
+export default function Accordion({
+  items,
+  searchPlaceholder = "Search by title, tag, or content…",
+  emptyMessage = "No items match your search.",
+  showGroups = true,
+}: {
+  items: AccordionItem[];
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  showGroups?: boolean;
+}) {
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return docs;
-    return docs.filter((d) => {
+    if (!q) return items;
+    return items.filter((d) => {
       const haystack = [
         d.title,
-        d.category,
-        d.description,
-        d.tags.join(" "),
+        d.summary ?? "",
+        d.meta ?? "",
+        (d.tags ?? []).join(" "),
         d.bodyHtml.replace(/<[^>]+>/g, " "),
       ]
         .join(" ")
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, docs]);
+  }, [query, items]);
 
   const grouped = useMemo(() => {
-    const map = new Map<string, DocWithBody[]>();
+    if (!showGroups) return [["", filtered] as [string, AccordionItem[]]];
+    const map = new Map<string, AccordionItem[]>();
     for (const d of filtered) {
-      const cat = d.category || "General";
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push(d);
+      const g = d.group || "General";
+      if (!map.has(g)) map.set(g, []);
+      map.get(g)!.push(d);
     }
     return Array.from(map.entries());
-  }, [filtered]);
+  }, [filtered, showGroups]);
 
   return (
     <>
@@ -43,23 +63,23 @@ export default function DocsAccordion({ docs }: { docs: DocWithBody[] }) {
         <input
           className="info-search"
           type="text"
-          placeholder="Search by title, section, tag, or content…"
+          placeholder={searchPlaceholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </div>
 
-      {grouped.length === 0 && (
-        <div className="info-empty">No documents match your search.</div>
-      )}
+      {filtered.length === 0 && <div className="info-empty">{emptyMessage}</div>}
 
-      {grouped.map(([cat, items]) => (
-        <section key={cat} className="info-section">
-          <div className="info-section-head">
-            <h2 className="info-section-title">{cat}</h2>
-            <span className="info-section-count">{items.length}</span>
-          </div>
-          {items.map((d) => {
+      {grouped.map(([group, list]) => (
+        <section key={group} className="info-section">
+          {showGroups && (
+            <div className="info-section-head">
+              <h2 className="info-section-title">{group}</h2>
+              <span className="info-section-count">{list.length}</span>
+            </div>
+          )}
+          {list.map((d) => {
             const open = openId === d.id;
             return (
               <div key={d.id} className={`info-card ${open ? "open" : ""}`}>
@@ -72,8 +92,8 @@ export default function DocsAccordion({ docs }: { docs: DocWithBody[] }) {
                   </svg>
                   <div className="info-card-text">
                     <h3 className="info-card-title">{d.title || "Untitled"}</h3>
-                    {d.description && <p className="info-card-summary">{d.description}</p>}
-                    {d.tags.length > 0 && (
+                    {d.summary && <p className="info-card-summary">{d.summary}</p>}
+                    {d.tags && d.tags.length > 0 && (
                       <div style={{ marginTop: 6 }}>
                         {d.tags.map((t) => (
                           <span key={t} className="info-tag">{t}</span>
@@ -81,7 +101,7 @@ export default function DocsAccordion({ docs }: { docs: DocWithBody[] }) {
                       </div>
                     )}
                   </div>
-                  {d.date && <p className="info-card-meta">{d.date}</p>}
+                  {d.meta && <p className="info-card-meta">{d.meta}</p>}
                 </div>
                 <div className="info-card-body" dangerouslySetInnerHTML={{ __html: d.bodyHtml }} />
               </div>

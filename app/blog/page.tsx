@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { getBlogPosts, BlogPost } from "@/lib/notion";
+import { getBlogPostsWithBodies, BlogPostWithBody } from "@/lib/notion";
+import Accordion, { AccordionItem } from "@/components/Accordion";
 
-const MOCK_POSTS: BlogPost[] = [
+const MOCK: BlogPostWithBody[] = [
   {
     id: "1",
     slug: "1",
@@ -9,8 +9,9 @@ const MOCK_POSTS: BlogPost[] = [
     author: "Quint",
     date: "2026-05-01",
     tags: ["Automation", "Make"],
-    excerpt: "A walkthrough of how we structure multi-step scenarios to avoid timeouts and keep modules reusable.",
+    excerpt: "A walkthrough of how we structure multi-step scenarios.",
     status: "Published",
+    bodyHtml: "<h3>Why Make</h3><p>Connect your Notion <strong>Blog Posts</strong> database to populate this with real content.</p>",
   },
   {
     id: "2",
@@ -19,76 +20,47 @@ const MOCK_POSTS: BlogPost[] = [
     author: "Armand",
     date: "2026-04-20",
     tags: ["Notion", "CMS"],
-    excerpt: "We've been using Notion databases as a backend for several client sites. Here's our honest take.",
+    excerpt: "Our honest take on using Notion databases as a backend for client sites.",
     status: "Published",
+    bodyHtml: "<h3>The pros</h3><p>Editors love it. Built-in versioning. Easy collaboration.</p>",
   },
 ];
 
-async function getPosts(): Promise<BlogPost[]> {
-  if (!process.env.NOTION_BLOG_DB_ID) return MOCK_POSTS;
-  try { return await getBlogPosts(); } catch { return MOCK_POSTS; }
+async function getData(): Promise<BlogPostWithBody[]> {
+  if (!process.env.NOTION_BLOG_DB_ID) return MOCK;
+  try {
+    const items = await getBlogPostsWithBodies();
+    return items.length > 0 ? items : MOCK;
+  } catch {
+    return MOCK;
+  }
 }
 
 export default async function BlogPage() {
-  const posts = await getPosts();
+  const posts = await getData();
+  const items: AccordionItem[] = posts.map((p) => ({
+    id: p.id,
+    title: p.title,
+    summary: p.excerpt,
+    meta: [p.author, p.date].filter(Boolean).join(" · "),
+    tags: p.tags,
+    group: p.date ? p.date.slice(0, 4) : "Undated",
+    bodyHtml: p.bodyHtml,
+  }));
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <p className="label-eyebrow mb-3">Writing</p>
-      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+      <h1
+        className="mb-3"
+        style={{ fontFamily: "var(--flo-font-display)", fontWeight: 800, fontSize: 36, letterSpacing: "0.02em", textTransform: "uppercase", color: "var(--foreground)" }}
+      >
         Blog
       </h1>
-      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
-        Notes, research, and things worth writing down.
+      <p className="mb-8" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
+        Notes, research, and things worth writing down. Click any post to read.
       </p>
-
-      <div className="space-y-3">
-        {posts.map((post) => (
-          <Link
-            key={post.id}
-            href={`/blog/${post.slug}`}
-            className="flo-card block p-5"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <h2
-                  className="mb-1 truncate"
-                  style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 15, color: "var(--foreground)" }}
-                >
-                  {post.title}
-                </h2>
-                <p className="mb-3 line-clamp-2" style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)" }}>
-                  {post.excerpt}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        fontFamily: "var(--flo-font-ui)",
-                        fontSize: 10,
-                        fontWeight: 600,
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        padding: "2px 8px",
-                        borderRadius: "var(--flo-radius-sm)",
-                        background: "var(--flo-teal-lightest)",
-                        color: "var(--flo-teal-darker)",
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, color: "var(--muted)" }}>{post.date}</p>
-                <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, fontWeight: 600, color: "var(--flo-teal)" }}>{post.author}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <Accordion items={items} searchPlaceholder="Search posts by title, author, tag, or content…" />
     </div>
   );
 }

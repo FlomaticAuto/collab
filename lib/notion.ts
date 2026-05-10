@@ -103,6 +103,14 @@ export interface DocWithBody extends Doc {
   bodyHtml: string;
 }
 
+export interface BlogPostWithBody extends BlogPost {
+  bodyHtml: string;
+}
+
+export interface ProjectWithBody extends Project {
+  bodyHtml: string;
+}
+
 export interface Idea {
   id: string;
   slug: string;
@@ -112,10 +120,26 @@ export interface Idea {
   notes: string;
 }
 
+export interface IdeaWithBody extends Idea {
+  bodyHtml: string;
+}
+
 async function pageMarkdown(id: string): Promise<string> {
   const mdBlocks = await n2m.pageToMarkdown(id);
   const raw = n2m.toMarkdownString(mdBlocks).parent;
   return rewriteImages(raw);
+}
+
+async function pageHtml(id: string): Promise<string> {
+  const { marked } = await import("marked");
+  const md = await pageMarkdown(id);
+  return marked.parse(md || "*No content yet.*", { gfm: true, breaks: true });
+}
+
+async function attachBodies<T extends { id: string }>(items: T[]): Promise<(T & { bodyHtml: string })[]> {
+  return Promise.all(
+    items.map(async (item) => ({ ...item, bodyHtml: await pageHtml(item.id) }))
+  );
 }
 
 // ── Fetchers ─────────────────────────────────────────────────────────────────
@@ -140,26 +164,6 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   }));
 }
 
-export async function getBlogPost(id: string): Promise<{ post: BlogPost; markdown: string }> {
-  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
-  const mdBlocks = await n2m.pageToMarkdown(id);
-  const rawMarkdown = n2m.toMarkdownString(mdBlocks).parent;
-  const markdown = await rewriteImages(rawMarkdown);
-  return {
-    post: {
-      id: page.id,
-      slug: page.id.replace(/-/g, ""),
-      title: title(prop(page, "Title")),
-      author: select(prop(page, "Author")),
-      date: date(prop(page, "Date")),
-      tags: multiSelect(prop(page, "Tags")),
-      excerpt: richText(prop(page, "Excerpt")),
-      status: select(prop(page, "Status")),
-    },
-    markdown,
-  };
-}
-
 export async function getProjects(): Promise<Project[]> {
   const dsId = await getDataSourceId(DB.projects);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,23 +180,6 @@ export async function getProjects(): Promise<Project[]> {
     link: url(prop(p, "Link")),
     tags: multiSelect(prop(p, "Tags")),
   }));
-}
-
-export async function getProject(id: string): Promise<{ project: Project; markdown: string }> {
-  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
-  const markdown = await pageMarkdown(id);
-  return {
-    project: {
-      id: page.id,
-      slug: page.id.replace(/-/g, ""),
-      name: title(prop(page, "Name")),
-      status: select(prop(page, "Status")),
-      description: richText(prop(page, "Description")),
-      link: url(prop(page, "Link")),
-      tags: multiSelect(prop(page, "Tags")),
-    },
-    markdown,
-  };
 }
 
 export async function getDocs(): Promise<Doc[]> {
@@ -213,34 +200,20 @@ export async function getDocs(): Promise<Doc[]> {
   }));
 }
 
-export async function getDoc(id: string): Promise<{ doc: Doc; markdown: string }> {
-  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
-  const markdown = await pageMarkdown(id);
-  return {
-    doc: {
-      id: page.id,
-      slug: page.id.replace(/-/g, ""),
-      title: title(prop(page, "Title")),
-      category: select(prop(page, "Category")),
-      date: date(prop(page, "Date")),
-      description: richText(prop(page, "Description")),
-      tags: multiSelect(prop(page, "Tags")),
-    },
-    markdown,
-  };
+export async function getDocsWithBodies(): Promise<DocWithBody[]> {
+  return attachBodies(await getDocs());
 }
 
-export async function getDocsWithBodies(): Promise<DocWithBody[]> {
-  const { marked } = await import("marked");
-  const docs = await getDocs();
-  const withBodies = await Promise.all(
-    docs.map(async (d) => {
-      const md = await pageMarkdown(d.id);
-      const bodyHtml = await marked.parse(md || "*No content yet.*", { gfm: true, breaks: true });
-      return { ...d, bodyHtml };
-    })
-  );
-  return withBodies;
+export async function getBlogPostsWithBodies(): Promise<BlogPostWithBody[]> {
+  return attachBodies(await getBlogPosts());
+}
+
+export async function getProjectsWithBodies(): Promise<ProjectWithBody[]> {
+  return attachBodies(await getProjects());
+}
+
+export async function getIdeasWithBodies(): Promise<IdeaWithBody[]> {
+  return attachBodies(await getIdeas());
 }
 
 export async function getIdeas(): Promise<Idea[]> {
@@ -260,18 +233,3 @@ export async function getIdeas(): Promise<Idea[]> {
   }));
 }
 
-export async function getIdea(id: string): Promise<{ idea: Idea; markdown: string }> {
-  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
-  const markdown = await pageMarkdown(id);
-  return {
-    idea: {
-      id: page.id,
-      slug: page.id.replace(/-/g, ""),
-      title: title(prop(page, "Title")),
-      owner: select(prop(page, "Owner")),
-      priority: select(prop(page, "Priority")),
-      notes: richText(prop(page, "Notes")),
-    },
-    markdown,
-  };
-}

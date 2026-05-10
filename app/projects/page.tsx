@@ -1,23 +1,9 @@
-import Link from "next/link";
-import { getProjects, Project } from "@/lib/notion";
+import { getProjectsWithBodies, ProjectWithBody } from "@/lib/notion";
+import Accordion, { AccordionItem } from "@/components/Accordion";
 
-const STATUS_COLOUR: Record<string, string> = {
-  Active:        "var(--flo-success)",
-  "In Progress": "var(--flo-warning)",
-  Planned:       "var(--flo-teal)",
-  Done:          "var(--flo-n-400)",
-  Paused:        "var(--flo-danger)",
-};
+const STATUS_ORDER = ["Active", "In Progress", "Planned", "Done", "Paused"];
 
-const STATUS_BG: Record<string, string> = {
-  Active:        "#E8F5F0",
-  "In Progress": "#FDF0E8",
-  Planned:       "var(--flo-teal-lightest)",
-  Done:          "var(--flo-n-100)",
-  Paused:        "#FDF0EE",
-};
-
-const MOCK_PROJECTS: Project[] = [
+const MOCK: ProjectWithBody[] = [
   {
     id: "1",
     slug: "1",
@@ -26,6 +12,7 @@ const MOCK_PROJECTS: Project[] = [
     description: "A real-time ops dashboard pulling data from Airtable, Make, and Zoho Books.",
     link: "",
     tags: ["Dashboard", "Airtable"],
+    bodyHtml: "<h3>Scope</h3><p>Connect your Notion <strong>Projects</strong> database to populate this with real engagements.</p>",
   },
   {
     id: "2",
@@ -35,84 +22,54 @@ const MOCK_PROJECTS: Project[] = [
     description: "Automated reporting pipeline for Olympic Paints field sales data.",
     link: "",
     tags: ["Automation", "Reporting"],
+    bodyHtml: "<h3>Status</h3><p>Currently piloting with two reps.</p>",
   },
 ];
 
-async function getData(): Promise<Project[]> {
-  if (!process.env.NOTION_PROJECTS_DB_ID) return MOCK_PROJECTS;
-  try { return await getProjects(); } catch { return MOCK_PROJECTS; }
+async function getData(): Promise<ProjectWithBody[]> {
+  if (!process.env.NOTION_PROJECTS_DB_ID) return MOCK;
+  try {
+    const items = await getProjectsWithBodies();
+    return items.length > 0 ? items : MOCK;
+  } catch {
+    return MOCK;
+  }
 }
 
 export default async function ProjectsPage() {
   const projects = await getData();
+  const sorted = [...projects].sort((a, b) => {
+    const ai = STATUS_ORDER.indexOf(a.status);
+    const bi = STATUS_ORDER.indexOf(b.status);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  });
+
+  const items: AccordionItem[] = sorted.map((p) => ({
+    id: p.id,
+    title: p.name,
+    summary: p.description,
+    meta: p.link ? "↗ external" : undefined,
+    tags: p.tags,
+    group: p.status || "Unsorted",
+    bodyHtml:
+      (p.link
+        ? `<p><a href="${p.link}" target="_blank" rel="noopener noreferrer">${p.link}</a></p>`
+        : "") + p.bodyHtml,
+  }));
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
       <p className="label-eyebrow mb-3">What we&apos;re building</p>
-      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+      <h1
+        className="mb-3"
+        style={{ fontFamily: "var(--flo-font-display)", fontWeight: 800, fontSize: 36, letterSpacing: "0.02em", textTransform: "uppercase", color: "var(--foreground)" }}
+      >
         Projects
       </h1>
-      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
-        Everything we&apos;re building — status, context, and links in one place.
+      <p className="mb-8" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
+        Everything we&apos;re building — grouped by status. Click any project to see details.
       </p>
-
-      <div className="grid sm:grid-cols-2 gap-4">
-        {projects.map((p) => (
-          <Link
-            key={p.id}
-            href={`/projects/${p.slug}`}
-            className="flo-card block p-5"
-            style={{
-              borderLeft: `4px solid ${STATUS_COLOUR[p.status] ?? "var(--flo-n-300)"}`,
-            }}
-          >
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <h2 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 15, color: "var(--foreground)" }}>
-                {p.name}
-              </h2>
-              <span
-                style={{
-                  fontFamily: "var(--flo-font-ui)",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                  padding: "2px 8px",
-                  borderRadius: "var(--flo-radius-sm)",
-                  background: STATUS_BG[p.status] ?? "var(--flo-n-100)",
-                  color: STATUS_COLOUR[p.status] ?? "var(--flo-n-500)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {p.status}
-              </span>
-            </div>
-            <p className="mb-4" style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
-              {p.description}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {p.tags.map((tag) => (
-                <span
-                  key={tag}
-                  style={{
-                    fontFamily: "var(--flo-font-ui)",
-                    fontSize: 10,
-                    fontWeight: 600,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    padding: "2px 8px",
-                    borderRadius: "var(--flo-radius-sm)",
-                    background: "var(--flo-n-100)",
-                    color: "var(--flo-n-500)",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </Link>
-        ))}
-      </div>
+      <Accordion items={items} searchPlaceholder="Search projects by name, status, tag, or content…" />
     </div>
   );
 }

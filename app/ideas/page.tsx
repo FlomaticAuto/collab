@@ -1,19 +1,9 @@
-import Link from "next/link";
-import { getIdeas, Idea } from "@/lib/notion";
+import { getIdeasWithBodies, IdeaWithBody } from "@/lib/notion";
+import Accordion, { AccordionItem } from "@/components/Accordion";
 
-const PRIORITY_COLOUR: Record<string, string> = {
-  High:   "var(--flo-danger)",
-  Medium: "var(--flo-warning)",
-  Low:    "var(--flo-teal)",
-};
+const PRIORITY_ORDER = ["High", "Medium", "Low"];
 
-const PRIORITY_BG: Record<string, string> = {
-  High:   "#FDF0EE",
-  Medium: "#FDF0E8",
-  Low:    "var(--flo-teal-lightest)",
-};
-
-const MOCK_IDEAS: Idea[] = [
+const MOCK: IdeaWithBody[] = [
   {
     id: "1",
     slug: "1",
@@ -21,6 +11,7 @@ const MOCK_IDEAS: Idea[] = [
     owner: "Quint",
     priority: "High",
     notes: "Trigger on new Airtable row → create Zoho contact → send welcome email → Slack notification.",
+    bodyHtml: "<h3>Detail</h3><p>Connect your Notion <strong>Ideas</strong> database to populate this.</p>",
   },
   {
     id: "2",
@@ -28,68 +19,52 @@ const MOCK_IDEAS: Idea[] = [
     title: "Self-serve invoice portal for small clients",
     owner: "Armand",
     priority: "Medium",
-    notes: "Lightweight page where clients can view and download their invoices without logging into Zoho.",
+    notes: "Lightweight page where clients view and download their invoices without logging into Zoho.",
+    bodyHtml: "<h3>Why</h3><p>Reduces inbound admin requests.</p>",
   },
 ];
 
-async function getData(): Promise<Idea[]> {
-  if (!process.env.NOTION_IDEAS_DB_ID) return MOCK_IDEAS;
-  try { return await getIdeas(); } catch { return MOCK_IDEAS; }
+async function getData(): Promise<IdeaWithBody[]> {
+  if (!process.env.NOTION_IDEAS_DB_ID) return MOCK;
+  try {
+    const items = await getIdeasWithBodies();
+    return items.length > 0 ? items : MOCK;
+  } catch {
+    return MOCK;
+  }
 }
 
 export default async function IdeasPage() {
   const ideas = await getData();
+  const sorted = [...ideas].sort((a, b) => {
+    const ai = PRIORITY_ORDER.indexOf(a.priority);
+    const bi = PRIORITY_ORDER.indexOf(b.priority);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  });
+
+  const items: AccordionItem[] = sorted.map((i) => ({
+    id: i.id,
+    title: i.title,
+    summary: i.notes,
+    meta: i.owner,
+    tags: [],
+    group: i.priority || "Unprioritised",
+    bodyHtml: i.bodyHtml,
+  }));
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <p className="label-eyebrow mb-3">Exploration</p>
-      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+      <h1
+        className="mb-3"
+        style={{ fontFamily: "var(--flo-font-display)", fontWeight: 800, fontSize: 36, letterSpacing: "0.02em", textTransform: "uppercase", color: "var(--foreground)" }}
+      >
         Ideas
       </h1>
-      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
-        Things worth exploring — owned, prioritised, and not forgotten.
+      <p className="mb-8" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
+        Things worth exploring — owned, prioritised, and not forgotten. Click any idea for context.
       </p>
-
-      <div className="space-y-3">
-        {ideas.map((idea) => (
-          <Link
-            key={idea.id}
-            href={`/ideas/${idea.slug}`}
-            className="flo-card block p-5"
-          >
-            <div className="flex items-start justify-between gap-3 mb-2">
-              <h2 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 14, color: "var(--foreground)" }}>
-                {idea.title}
-              </h2>
-              <div className="flex items-center gap-2 shrink-0">
-                <span
-                  style={{
-                    fontFamily: "var(--flo-font-ui)",
-                    fontSize: 10,
-                    fontWeight: 600,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    padding: "2px 8px",
-                    borderRadius: "var(--flo-radius-sm)",
-                    background: PRIORITY_BG[idea.priority] ?? "var(--flo-n-100)",
-                    color: PRIORITY_COLOUR[idea.priority] ?? "var(--flo-n-500)",
-                  }}
-                >
-                  {idea.priority}
-                </span>
-                <span style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, fontWeight: 600, color: "var(--flo-teal)" }}>
-                  {idea.owner}
-                </span>
-              </div>
-            </div>
-            {idea.notes && (
-              <p style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
-                {idea.notes}
-              </p>
-            )}
-          </Link>
-        ))}
-      </div>
+      <Accordion items={items} searchPlaceholder="Search ideas by title, owner, or content…" />
     </div>
   );
 }
