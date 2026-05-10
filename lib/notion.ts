@@ -14,6 +14,21 @@ const DB = {
   ideas: process.env.NOTION_IDEAS_DB_ID!,
 };
 
+// ── Data source ID resolution ────────────────────────────────────────────────
+// Notion API v5: dataSources.query requires data_source_id, not database_id.
+// Each database exposes a data_sources array; we take the first (default) one.
+const dataSourceCache = new Map<string, string>();
+
+async function getDataSourceId(databaseId: string): Promise<string> {
+  if (dataSourceCache.has(databaseId)) return dataSourceCache.get(databaseId)!;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = (await notion.databases.retrieve({ database_id: databaseId })) as any;
+  const dsId = db.data_sources?.[0]?.id;
+  if (!dsId) throw new Error(`No data source found for database ${databaseId}`);
+  dataSourceCache.set(databaseId, dsId);
+  return dsId;
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function prop(page: PageObjectResponse, name: string) {
@@ -91,9 +106,10 @@ export interface Idea {
 // ── Fetchers ─────────────────────────────────────────────────────────────────
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
+  const dsId = await getDataSourceId(DB.blog);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res = await (notion as any).dataSources.query({
-    database_id: DB.blog,
+    data_source_id: dsId,
     filter: { property: "Status", select: { equals: "Published" } },
     sorts: [{ property: "Date", direction: "descending" }],
   });
@@ -130,9 +146,10 @@ export async function getBlogPost(id: string): Promise<{ post: BlogPost; markdow
 }
 
 export async function getProjects(): Promise<Project[]> {
+  const dsId = await getDataSourceId(DB.projects);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res = await (notion as any).dataSources.query({
-    database_id: DB.projects,
+    data_source_id: dsId,
     sorts: [{ property: "Name", direction: "ascending" }],
   });
   return (res.results as PageObjectResponse[]).map((p) => ({
@@ -146,9 +163,10 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getDocs(): Promise<Doc[]> {
+  const dsId = await getDataSourceId(DB.docs);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res = await (notion as any).dataSources.query({
-    database_id: DB.docs,
+    data_source_id: dsId,
     sorts: [{ property: "Date", direction: "descending" }],
   });
   return (res.results as PageObjectResponse[]).map((p) => ({
@@ -161,9 +179,10 @@ export async function getDocs(): Promise<Doc[]> {
 }
 
 export async function getIdeas(): Promise<Idea[]> {
+  const dsId = await getDataSourceId(DB.ideas);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res = await (notion as any).dataSources.query({
-    database_id: DB.ideas,
+    data_source_id: dsId,
     sorts: [{ property: "Priority", direction: "ascending" }],
   });
   return (res.results as PageObjectResponse[]).map((p) => ({
