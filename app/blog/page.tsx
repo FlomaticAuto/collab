@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getBlogPosts, BlogPost } from "@/lib/notion";
 
-// Fallback mock data used when Notion env vars are not configured
 const MOCK_POSTS: BlogPost[] = [
   {
     id: "1",
@@ -27,11 +26,7 @@ const MOCK_POSTS: BlogPost[] = [
 
 async function getPosts(): Promise<BlogPost[]> {
   if (!process.env.NOTION_BLOG_DB_ID) return MOCK_POSTS;
-  try {
-    return await getBlogPosts();
-  } catch {
-    return MOCK_POSTS;
-  }
+  try { return await getBlogPosts(); } catch { return MOCK_POSTS; }
 }
 
 export default async function BlogPage() {
@@ -39,31 +34,47 @@ export default async function BlogPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <h1 className="text-4xl font-bold tracking-tight mb-3">Blog</h1>
-      <p className="mb-12 text-base" style={{ color: "var(--muted)" }}>
+      <p className="label-eyebrow mb-3">Writing</p>
+      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+        Blog
+      </h1>
+      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
         Notes, research, and things worth writing down.
       </p>
 
-      <div className="space-y-px">
+      <div className="space-y-3">
         {posts.map((post) => (
           <Link
             key={post.id}
             href={`/collab/blog/${post.slug}`}
-            className="block rounded-xl border p-5 transition-colors hover:border-indigo-500"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            className="flo-card block p-5"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <h2 className="font-semibold text-base mb-1 truncate">{post.title}</h2>
-                <p className="text-sm leading-relaxed mb-3 line-clamp-2" style={{ color: "var(--muted)" }}>
+                <h2
+                  className="mb-1 truncate"
+                  style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 15, color: "var(--foreground)" }}
+                >
+                  {post.title}
+                </h2>
+                <p className="mb-3 line-clamp-2" style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)" }}>
                   {post.excerpt}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: "var(--border)", color: "var(--muted)" }}
+                      style={{
+                        fontFamily: "var(--flo-font-ui)",
+                        fontSize: 10,
+                        fontWeight: 600,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        padding: "2px 8px",
+                        borderRadius: "var(--flo-radius-sm)",
+                        background: "var(--flo-teal-lightest)",
+                        color: "var(--flo-teal-darker)",
+                      }}
                     >
                       {tag}
                     </span>
@@ -71,12 +82,8 @@ export default async function BlogPage() {
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs mb-1" style={{ color: "var(--muted)" }}>
-                  {post.date}
-                </p>
-                <p className="text-xs font-medium" style={{ color: "var(--accent-light)" }}>
-                  {post.author}
-                </p>
+                <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, color: "var(--muted)" }}>{post.date}</p>
+                <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, fontWeight: 600, color: "var(--flo-teal)" }}>{post.author}</p>
               </div>
             </div>
           </Link>

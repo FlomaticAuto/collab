@@ -1,11 +1,19 @@
 import { getProjects, Project } from "@/lib/notion";
 
 const STATUS_COLOUR: Record<string, string> = {
-  Active: "#22c55e",
-  "In Progress": "#f59e0b",
-  Planned: "#6366f1",
-  Done: "#71717a",
-  Paused: "#ef4444",
+  Active:        "var(--flo-success)",
+  "In Progress": "var(--flo-warning)",
+  Planned:       "var(--flo-teal)",
+  Done:          "var(--flo-n-400)",
+  Paused:        "var(--flo-danger)",
+};
+
+const STATUS_BG: Record<string, string> = {
+  Active:        "#E8F5F0",
+  "In Progress": "#FDF0E8",
+  Planned:       "var(--flo-teal-lightest)",
+  Done:          "var(--flo-n-100)",
+  Paused:        "#FDF0EE",
 };
 
 const MOCK_PROJECTS: Project[] = [
@@ -29,11 +37,7 @@ const MOCK_PROJECTS: Project[] = [
 
 async function getData(): Promise<Project[]> {
   if (!process.env.NOTION_PROJECTS_DB_ID) return MOCK_PROJECTS;
-  try {
-    return await getProjects();
-  } catch {
-    return MOCK_PROJECTS;
-  }
+  try { return await getProjects(); } catch { return MOCK_PROJECTS; }
 }
 
 export default async function ProjectsPage() {
@@ -41,39 +45,65 @@ export default async function ProjectsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
-      <h1 className="text-4xl font-bold tracking-tight mb-3">Projects</h1>
-      <p className="mb-12 text-base" style={{ color: "var(--muted)" }}>
-        Everything we're building — status, context, and links in one place.
+      <p className="label-eyebrow mb-3">What we&apos;re building</p>
+      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+        Projects
+      </h1>
+      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
+        Everything we&apos;re building — status, context, and links in one place.
       </p>
 
       <div className="grid sm:grid-cols-2 gap-4">
         {projects.map((p) => (
           <div
             key={p.id}
-            className="rounded-xl border p-5"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            className="border p-5"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--surface)",
+              borderRadius: "var(--flo-radius-lg)",
+              borderLeft: `4px solid ${STATUS_COLOUR[p.status] ?? "var(--flo-n-300)"}`,
+            }}
           >
             <div className="flex items-start justify-between gap-3 mb-3">
-              <h2 className="font-semibold text-base">{p.name}</h2>
+              <h2 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 15, color: "var(--foreground)" }}>
+                {p.name}
+              </h2>
               <span
-                className="text-xs px-2 py-0.5 rounded-full shrink-0 font-medium"
                 style={{
-                  background: (STATUS_COLOUR[p.status] ?? "#71717a") + "22",
-                  color: STATUS_COLOUR[p.status] ?? "#71717a",
+                  fontFamily: "var(--flo-font-ui)",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  padding: "2px 8px",
+                  borderRadius: "var(--flo-radius-sm)",
+                  background: STATUS_BG[p.status] ?? "var(--flo-n-100)",
+                  color: STATUS_COLOUR[p.status] ?? "var(--flo-n-500)",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {p.status}
               </span>
             </div>
-            <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--muted)" }}>
+            <p className="mb-4" style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
               {p.description}
             </p>
             <div className="flex flex-wrap gap-2">
               {p.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs px-2 py-0.5 rounded-full"
-                  style={{ background: "var(--border)", color: "var(--muted)" }}
+                  style={{
+                    fontFamily: "var(--flo-font-ui)",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    padding: "2px 8px",
+                    borderRadius: "var(--flo-radius-sm)",
+                    background: "var(--flo-n-100)",
+                    color: "var(--flo-n-500)",
+                  }}
                 >
                   {tag}
                 </span>
@@ -84,8 +114,8 @@ export default async function ProjectsPage() {
                 href={p.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-block text-xs"
-                style={{ color: "var(--accent-light)" }}
+                className="mt-4 inline-block"
+                style={{ fontFamily: "var(--flo-font-ui)", fontSize: 12, fontWeight: 600, color: "var(--flo-teal)" }}
               >
                 View →
               </a>

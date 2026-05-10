@@ -19,11 +19,7 @@ const MOCK_DOCS: Doc[] = [
 
 async function getData(): Promise<Doc[]> {
   if (!process.env.NOTION_DOCS_DB_ID) return MOCK_DOCS;
-  try {
-    return await getDocs();
-  } catch {
-    return MOCK_DOCS;
-  }
+  try { return await getDocs(); } catch { return MOCK_DOCS; }
 }
 
 export default async function DocsPage() {
@@ -37,30 +33,37 @@ export default async function DocsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <h1 className="text-4xl font-bold tracking-tight mb-3">Docs</h1>
-      <p className="mb-12 text-base" style={{ color: "var(--muted)" }}>
+      <p className="label-eyebrow mb-3">Reference</p>
+      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+        Docs
+      </h1>
+      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
         Published reports, specs, and reference documents.
       </p>
 
       {Object.entries(byCategory).map(([cat, items]) => (
         <section key={cat} className="mb-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--accent)" }}>
-            {cat}
-          </h2>
+          <p className="label-eyebrow mb-4">{cat}</p>
           <div className="space-y-3">
             {items.map((doc) => (
               <div
                 key={doc.id}
-                className="rounded-xl border p-5 flex items-start justify-between gap-4"
-                style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+                className="border p-5 flex items-start justify-between gap-4"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--surface)",
+                  borderRadius: "var(--flo-radius-lg)",
+                }}
               >
                 <div>
-                  <h3 className="font-medium text-sm mb-1">{doc.title}</h3>
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  <h3 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>
+                    {doc.title}
+                  </h3>
+                  <p style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)" }}>
                     {doc.description}
                   </p>
                 </div>
-                <p className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
+                <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, color: "var(--muted)", whiteSpace: "nowrap" }}>
                   {doc.date}
                 </p>
               </div>

@@ -31,13 +31,17 @@ export default function Home() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-24">
       <div className="mb-16">
-        <p className="text-sm font-medium mb-3" style={{ color: "var(--accent-light)" }}>
-          FlowmaticAuto
-        </p>
-        <h1 className="text-5xl font-bold tracking-tight mb-5">
+        <p className="label-eyebrow mb-3">FlowmaticAuto · Collab</p>
+        <h1
+          className="mb-5"
+          style={{ fontFamily: "var(--flo-font-display)", fontWeight: 800, fontSize: 48, color: "var(--flo-teal)", lineHeight: 1.1 }}
+        >
           Quint &amp; Armand
         </h1>
-        <p className="text-xl max-w-xl leading-relaxed" style={{ color: "var(--muted)" }}>
+        <p
+          className="max-w-xl"
+          style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, fontSize: 15, color: "var(--muted)", lineHeight: 1.65 }}
+        >
           A shared space to think, build, and stay aligned. Everything lives here — updated once, visible to both.
         </p>
       </div>
@@ -47,14 +51,18 @@ export default function Home() {
           <Link
             key={s.href}
             href={s.href}
-            className="group rounded-xl border p-6 transition-colors hover:border-indigo-500"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            className="flo-card block p-6"
           >
-            <div className="text-2xl mb-3" style={{ color: "var(--accent)" }}>
+            <div className="text-2xl mb-3" style={{ color: "var(--flo-teal)" }}>
               {s.icon}
             </div>
-            <h2 className="font-semibold text-lg mb-1">{s.label}</h2>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+            <h2
+              className="mb-1"
+              style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 18, color: "var(--foreground)" }}
+            >
+              {s.label}
+            </h2>
+            <p style={{ fontFamily: "var(--flo-font-body)", fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
               {s.description}
             </p>
           </Link>

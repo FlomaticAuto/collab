@@ -1,17 +1,89 @@
 @import "tailwindcss";
 
+/* ── Flomatic Brand Tokens ───────────────────────────────────────────────── */
 :root {
-  --background: #0f0f0f;
-  --foreground: #f0f0f0;
-  --accent: #6366f1;
-  --accent-light: #818cf8;
-  --muted: #71717a;
-  --border: #27272a;
-  --surface: #18181b;
+  --flo-teal:          #2A8C8C;
+  --flo-teal-light:    #7EC8C8;
+  --flo-teal-lighter:  #C0E4E4;
+  --flo-teal-lightest: #E8F5F5;
+  --flo-teal-dark:     #1E6868;
+  --flo-teal-darker:   #134545;
+  --flo-navy:          #1A2530;
+  --flo-steel:         #3D5A72;
+  --flo-steel-light:   #8BAAB8;
+  --flo-white:         #FFFFFF;
+  --flo-bg:            #F4F6F8;
+  --flo-success:       #27AE8C;
+  --flo-warning:       #E67E22;
+  --flo-danger:        #C0392B;
+  --flo-info:          #2980B9;
+  --flo-n-100:         #F4F6F8;
+  --flo-n-200:         #E2E8ED;
+  --flo-n-300:         #C0CDD8;
+  --flo-n-400:         #94A3B0;
+  --flo-n-500:         #5A7080;
+  --flo-n-700:         #2A3F52;
+  --flo-n-900:         #1A2530;
+  --flo-font-display:  'Syne', sans-serif;
+  --flo-font-ui:       'Space Grotesk', sans-serif;
+  --flo-font-body:     'DM Sans', sans-serif;
+  --flo-radius-sm:     4px;
+  --flo-radius-md:     8px;
+  --flo-radius-lg:     12px;
+  --flo-radius-xl:     16px;
 }
 
+/* ── Light theme (default) ───────────────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  --background: var(--flo-bg);
+  --surface:    var(--flo-white);
+  --foreground: var(--flo-navy);
+  --muted:      var(--flo-n-500);
+  --border:     var(--flo-n-200);
+  --accent:     var(--flo-teal);
+  --accent-light: var(--flo-teal-light);
+}
+
+/* ── Dark theme ──────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --background: var(--flo-navy);
+  --surface:    var(--flo-n-700);
+  --foreground: var(--flo-white);
+  --muted:      var(--flo-steel-light);
+  --border:     #243344;
+  --accent:     var(--flo-teal);
+  --accent-light: var(--flo-teal-light);
+}
+
+/* ── Base styles ─────────────────────────────────────────────────────────── */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--flo-font-body);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--flo-font-display);
+}
+
+.label-eyebrow {
+  font-family: var(--flo-font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--flo-teal);
+}
+
+.flo-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--flo-radius-lg);
+  transition: border-color 0.15s;
+}
+.flo-card:hover {
+  border-color: var(--flo-teal);
 }
