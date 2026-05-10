@@ -1,6 +1,7 @@
 import { Client } from "@notionhq/client";
 import { NotionToMarkdown } from "notion-to-md";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { rewriteImages } from "./notion-images";
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const n2m = new NotionToMarkdown({ notionClient: notion });
@@ -111,7 +112,8 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 export async function getBlogPost(id: string): Promise<{ post: BlogPost; markdown: string }> {
   const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
   const mdBlocks = await n2m.pageToMarkdown(id);
-  const markdown = n2m.toMarkdownString(mdBlocks).parent;
+  const rawMarkdown = n2m.toMarkdownString(mdBlocks).parent;
+  const markdown = await rewriteImages(rawMarkdown);
   return {
     post: {
       id: page.id,
