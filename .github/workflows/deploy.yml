@@ -36,6 +36,29 @@ jobs:
           NOTION_DOCS_DB_ID: ${{ secrets.NOTION_DOCS_DB_ID }}
           NOTION_IDEAS_DB_ID: ${{ secrets.NOTION_IDEAS_DB_ID }}
 
+      - name: Inject SPA redirect into 404.html
+        run: |
+          cat > out/404.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>FlowmaticAuto Collab</title>
+            <script>
+              var l = window.location;
+              var base = '/collab';
+              var path = l.pathname.replace(base, '') || '/';
+              l.replace(
+                l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+                base + '/?p=' + encodeURIComponent(path + l.search) +
+                '&h=' + encodeURIComponent(l.hash || '')
+              );
+            </script>
+          </head>
+          <body></body>
+          </html>
+          EOF
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
