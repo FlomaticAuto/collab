@@ -35,34 +35,35 @@ function prop(page: PageObjectResponse, name: string) {
   return (page.properties as Record<string, unknown>)[name];
 }
 
+// All property helpers tolerate missing/undefined props so adding a field
+// to a TS interface doesn't break the build when the Notion DB hasn't
+// got that column yet.
+
 function richText(p: unknown): string {
-  const items = (p as { rich_text: { plain_text: string }[] }).rich_text;
+  const items = (p as { rich_text?: { plain_text: string }[] } | undefined)?.rich_text;
   return items?.map((t) => t.plain_text).join("") ?? "";
 }
 
 function title(p: unknown): string {
-  const items = (p as { title: { plain_text: string }[] }).title;
+  const items = (p as { title?: { plain_text: string }[] } | undefined)?.title;
   return items?.map((t) => t.plain_text).join("") ?? "";
 }
 
 function select(p: unknown): string {
-  return (p as { select?: { name: string } }).select?.name ?? "";
+  return (p as { select?: { name: string } } | undefined)?.select?.name ?? "";
 }
 
 function multiSelect(p: unknown): string[] {
-  return (
-    (p as { multi_select: { name: string }[] }).multi_select?.map(
-      (s) => s.name
-    ) ?? []
-  );
+  const items = (p as { multi_select?: { name: string }[] } | undefined)?.multi_select;
+  return items?.map((s) => s.name) ?? [];
 }
 
 function date(p: unknown): string {
-  return (p as { date?: { start: string } }).date?.start ?? "";
+  return (p as { date?: { start: string } } | undefined)?.date?.start ?? "";
 }
 
 function url(p: unknown): string {
-  return (p as { url?: string }).url ?? "";
+  return (p as { url?: string } | undefined)?.url ?? "";
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────
