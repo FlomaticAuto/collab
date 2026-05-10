@@ -11,6 +11,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" data-theme="light" className="h-full antialiased">
       <head>
+        {/* Restore theme from localStorage before first paint — prevents flash */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var t = localStorage.getItem('flo-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+          })();
+        `}} />
+
+        {/* GitHub Pages SPA: restore path encoded by 404.html redirect */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var params = new URLSearchParams(window.location.search);
+            var p = params.get('p');
+            if (p) {
+              var h = params.get('h') || '';
+              params.delete('p');
+              params.delete('h');
+              var rest = params.toString() ? '?' + params.toString() : '';
+              window.history.replaceState(null, '', '/collab' + decodeURIComponent(p) + rest + decodeURIComponent(h));
+            }
+          })();
+        `}} />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
