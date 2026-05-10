@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           })();
         `}} />
 
-        {/* GitHub Pages SPA: hard-redirect to the correct static page */}
+        {/* GitHub Pages SPA: restore path encoded by 404.html redirect */}
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             var params = new URLSearchParams(window.location.search);
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               params.delete('p');
               params.delete('h');
               var rest = params.toString() ? '?' + params.toString() : '';
-              window.location.replace('/collab' + decodeURIComponent(p) + rest + decodeURIComponent(h));
+              window.history.replaceState(null, '', '/collab' + decodeURIComponent(p) + rest + decodeURIComponent(h));
             }
           })();
         `}} />

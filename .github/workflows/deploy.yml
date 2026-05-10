@@ -46,13 +46,18 @@ jobs:
             <title>FlowmaticAuto Collab</title>
             <script>
               var l = window.location;
-              var base = '/collab';
-              var path = l.pathname.replace(base, '') || '/';
-              l.replace(
-                l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-                base + '/?p=' + encodeURIComponent(path + l.search) +
-                '&h=' + encodeURIComponent(l.hash || '')
-              );
+              var path = l.pathname.replace(/\/$/, '') + '/';
+              if (path !== l.pathname) {
+                l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + path + l.search + l.hash);
+              } else {
+                var base = '/collab';
+                var p = l.pathname.replace(base, '') || '/';
+                l.replace(
+                  l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+                  base + '/?p=' + encodeURIComponent(p + l.search) +
+                  '&h=' + encodeURIComponent(l.hash || '')
+                );
+              }
             </script>
           </head>
           <body></body>
