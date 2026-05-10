@@ -2,25 +2,25 @@ import Link from "next/link";
 
 const sections = [
   {
-    href: "/collab/blog",
+    href: "/blog",
     label: "Blog",
     description: "Notes, ideas, and interesting finds — searchable and always up to date.",
     icon: "✦",
   },
   {
-    href: "/collab/projects",
+    href: "/projects",
     label: "Projects",
     description: "Status and context for everything we're building together.",
     icon: "◈",
   },
   {
-    href: "/collab/docs",
+    href: "/docs",
     label: "Docs",
     description: "Reports, specs, and reference documents we've published.",
     icon: "▤",
   },
   {
-    href: "/collab/ideas",
+    href: "/ideas",
     label: "Ideas",
     description: "A holding area for things worth exploring — owned, prioritised, and tracked.",
     icon: "◎",

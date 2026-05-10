@@ -4,11 +4,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const links = [
-  { href: "/collab", label: "Home" },
-  { href: "/collab/blog", label: "Blog" },
-  { href: "/collab/projects", label: "Projects" },
-  { href: "/collab/docs", label: "Docs" },
-  { href: "/collab/ideas", label: "Ideas" },
+  { href: "/", label: "Home" },
+  { href: "/blog", label: "Blog" },
+  { href: "/projects", label: "Projects" },
+  { href: "/docs", label: "Docs" },
+  { href: "/ideas", label: "Ideas" },
 ];
 
 const THEMES = [
@@ -83,7 +83,7 @@ export default function Nav() {
     >
       {/* Top row: wordmark + nav + theme tabs */}
       <div className="flex items-center justify-between py-3">
-        <Link href="/collab" style={{ textDecoration: "none" }}>
+        <Link href="/" style={{ textDecoration: "none" }}>
           <span style={{ fontFamily: "var(--flo-font-display)", fontWeight: 800, fontSize: 17, letterSpacing: "0.04em", color: "var(--accent)" }}>
             FLOMATIC
           </span>

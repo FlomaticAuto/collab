@@ -46,7 +46,7 @@ export default async function BlogPage() {
         {posts.map((post) => (
           <Link
             key={post.id}
-            href={`/collab/blog/${post.slug}`}
+            href={`/blog/${post.slug}`}
             className="flo-card block p-5"
           >
             <div className="flex items-start justify-between gap-4">

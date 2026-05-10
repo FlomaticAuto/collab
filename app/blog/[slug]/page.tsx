@@ -24,7 +24,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (slug === "_placeholder" || !process.env.NOTION_BLOG_DB_ID) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16">
-        <Link href="/collab/blog" className="text-sm mb-8 block" style={{ color: "var(--muted)" }}>
+        <Link href="/blog" className="text-sm mb-8 block" style={{ color: "var(--muted)" }}>
           ← Back to blog
         </Link>
         <div
