@@ -24,36 +24,81 @@
   --flo-n-500:         #5A7080;
   --flo-n-700:         #2A3F52;
   --flo-n-900:         #1A2530;
-  --flo-font-display:  'Syne', sans-serif;
-  --flo-font-ui:       'Space Grotesk', sans-serif;
-  --flo-font-body:     'DM Sans', sans-serif;
   --flo-radius-sm:     4px;
   --flo-radius-md:     8px;
   --flo-radius-lg:     12px;
   --flo-radius-xl:     16px;
 }
 
-/* ── Light theme (default) ───────────────────────────────────────────────── */
+/* ── Theme 1: Light (clean, minimal) ────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  --background: var(--flo-bg);
-  --surface:    var(--flo-white);
-  --foreground: var(--flo-navy);
-  --muted:      var(--flo-n-500);
-  --border:     var(--flo-n-200);
-  --accent:     var(--flo-teal);
-  --accent-light: var(--flo-teal-light);
+  --background:    var(--flo-bg);
+  --surface:       var(--flo-white);
+  --foreground:    var(--flo-navy);
+  --muted:         var(--flo-n-500);
+  --border:        var(--flo-n-200);
+  --accent:        var(--flo-teal);
+  --accent-light:  var(--flo-teal-light);
+  --flo-font-display: 'Syne', sans-serif;
+  --flo-font-ui:      'Space Grotesk', sans-serif;
+  --flo-font-body:    'DM Sans', sans-serif;
 }
 
-/* ── Dark theme ──────────────────────────────────────────────────────────── */
+/* ── Theme 2: Dark (deep navy) ───────────────────────────────────────────── */
 [data-theme="dark"] {
-  --background: var(--flo-navy);
-  --surface:    var(--flo-n-700);
-  --foreground: var(--flo-white);
-  --muted:      var(--flo-steel-light);
-  --border:     #243344;
-  --accent:     var(--flo-teal);
-  --accent-light: var(--flo-teal-light);
+  --background:    var(--flo-navy);
+  --surface:       var(--flo-n-700);
+  --foreground:    var(--flo-white);
+  --muted:         var(--flo-steel-light);
+  --border:        #243344;
+  --accent:        var(--flo-teal);
+  --accent-light:  var(--flo-teal-light);
+  --flo-font-display: 'Syne', sans-serif;
+  --flo-font-ui:      'Space Grotesk', sans-serif;
+  --flo-font-body:    'DM Sans', sans-serif;
+}
+
+/* ── Theme 3: Vivid (teal-forward, bold) ─────────────────────────────────── */
+[data-theme="vivid"] {
+  --background:    var(--flo-teal-darker);
+  --surface:       var(--flo-teal-dark);
+  --foreground:    var(--flo-white);
+  --muted:         var(--flo-teal-lighter);
+  --border:        var(--flo-teal);
+  --accent:        var(--flo-white);
+  --accent-light:  var(--flo-teal-lightest);
+  --flo-font-display: 'Plus Jakarta Sans', sans-serif;
+  --flo-font-ui:      'Plus Jakarta Sans', sans-serif;
+  --flo-font-body:    'Plus Jakarta Sans', sans-serif;
+}
+
+/* ── Theme 4: Steel (editorial, Control Blue dominant) ───────────────────── */
+[data-theme="steel"] {
+  --background:    #EDF2F7;
+  --surface:       var(--flo-white);
+  --foreground:    var(--flo-steel);
+  --muted:         var(--flo-steel-light);
+  --border:        #C5D5E5;
+  --accent:        var(--flo-info);
+  --accent-light:  var(--flo-teal);
+  --flo-font-display: 'Playfair Display', serif;
+  --flo-font-ui:      'Space Grotesk', sans-serif;
+  --flo-font-body:    'Source Serif 4', serif;
+}
+
+/* ── Theme 5: Ink (near-black, monospace tech) ───────────────────────────── */
+[data-theme="ink"] {
+  --background:    #0D1117;
+  --surface:       #161B22;
+  --foreground:    #E6EDF3;
+  --muted:         var(--flo-steel-light);
+  --border:        #30363D;
+  --accent:        var(--flo-teal);
+  --accent-light:  var(--flo-teal-light);
+  --flo-font-display: 'JetBrains Mono', monospace;
+  --flo-font-ui:      'JetBrains Mono', monospace;
+  --flo-font-body:    'JetBrains Mono', monospace;
 }
 
 /* ── Base styles ─────────────────────────────────────────────────────────── */
@@ -63,6 +108,7 @@ body {
   font-family: var(--flo-font-body);
   font-size: 15px;
   line-height: 1.65;
+  transition: background 0.2s, color 0.2s;
 }
 
 h1, h2, h3, h4 {
@@ -75,7 +121,7 @@ h1, h2, h3, h4 {
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--flo-teal);
+  color: var(--accent);
 }
 
 .flo-card {
@@ -85,5 +131,5 @@ h1, h2, h3, h4 {
   transition: border-color 0.15s;
 }
 .flo-card:hover {
-  border-color: var(--flo-teal);
+  border-color: var(--accent);
 }
