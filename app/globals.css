@@ -133,3 +133,88 @@ h1, h2, h3, h4 {
 .flo-card:hover {
   border-color: var(--accent);
 }
+
+/* ── Prose / markdown rendering ──────────────────────────────────────────── */
+.flo-prose {
+  font-family: var(--flo-font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--foreground);
+}
+.flo-prose h1, .flo-prose h2, .flo-prose h3, .flo-prose h4 {
+  font-family: var(--flo-font-display);
+  color: var(--foreground);
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.25;
+}
+.flo-prose h1 { font-size: 1.875rem; font-weight: 700; }
+.flo-prose h2 { font-size: 1.5rem;   font-weight: 700; }
+.flo-prose h3 { font-size: 1.25rem;  font-weight: 600; }
+.flo-prose h4 { font-size: 1rem;     font-weight: 600; }
+.flo-prose p { margin: 0.9em 0; }
+.flo-prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.flo-prose a:hover { text-decoration-thickness: 2px; }
+.flo-prose ul, .flo-prose ol { margin: 0.9em 0; padding-left: 1.5em; }
+.flo-prose ul { list-style: disc; }
+.flo-prose ol { list-style: decimal; }
+.flo-prose li { margin: 0.3em 0; }
+.flo-prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1em;
+  margin: 1.2em 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.flo-prose code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  background: var(--flo-n-100);
+  color: var(--flo-teal-darker);
+  padding: 0.15em 0.4em;
+  border-radius: var(--flo-radius-sm);
+}
+.flo-prose pre {
+  background: var(--flo-n-100);
+  border: 1px solid var(--border);
+  border-radius: var(--flo-radius-md);
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  margin: 1.2em 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  line-height: 1.6;
+}
+.flo-prose pre code { background: none; padding: 0; color: var(--foreground); }
+.flo-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--flo-radius-md);
+  margin: 1.2em 0;
+}
+.flo-prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+}
+.flo-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  font-size: 0.95em;
+}
+.flo-prose th, .flo-prose td {
+  border: 1px solid var(--border);
+  padding: 0.5em 0.8em;
+  text-align: left;
+}
+.flo-prose th {
+  background: var(--flo-n-100);
+  font-family: var(--flo-font-ui);
+  font-weight: 600;
+}

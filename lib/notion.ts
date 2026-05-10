@@ -80,6 +80,7 @@ export interface BlogPost {
 
 export interface Project {
   id: string;
+  slug: string;
   name: string;
   status: string;
   description: string;
@@ -89,6 +90,7 @@ export interface Project {
 
 export interface Doc {
   id: string;
+  slug: string;
   title: string;
   category: string;
   date: string;
@@ -97,10 +99,17 @@ export interface Doc {
 
 export interface Idea {
   id: string;
+  slug: string;
   title: string;
   owner: string;
   priority: string;
   notes: string;
+}
+
+async function pageMarkdown(id: string): Promise<string> {
+  const mdBlocks = await n2m.pageToMarkdown(id);
+  const raw = n2m.toMarkdownString(mdBlocks).parent;
+  return rewriteImages(raw);
 }
 
 // ── Fetchers ─────────────────────────────────────────────────────────────────
@@ -154,12 +163,30 @@ export async function getProjects(): Promise<Project[]> {
   });
   return (res.results as PageObjectResponse[]).map((p) => ({
     id: p.id,
+    slug: p.id.replace(/-/g, ""),
     name: title(prop(p, "Name")),
     status: select(prop(p, "Status")),
     description: richText(prop(p, "Description")),
     link: url(prop(p, "Link")),
     tags: multiSelect(prop(p, "Tags")),
   }));
+}
+
+export async function getProject(id: string): Promise<{ project: Project; markdown: string }> {
+  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
+  const markdown = await pageMarkdown(id);
+  return {
+    project: {
+      id: page.id,
+      slug: page.id.replace(/-/g, ""),
+      name: title(prop(page, "Name")),
+      status: select(prop(page, "Status")),
+      description: richText(prop(page, "Description")),
+      link: url(prop(page, "Link")),
+      tags: multiSelect(prop(page, "Tags")),
+    },
+    markdown,
+  };
 }
 
 export async function getDocs(): Promise<Doc[]> {
@@ -171,11 +198,28 @@ export async function getDocs(): Promise<Doc[]> {
   });
   return (res.results as PageObjectResponse[]).map((p) => ({
     id: p.id,
+    slug: p.id.replace(/-/g, ""),
     title: title(prop(p, "Title")),
     category: select(prop(p, "Category")),
     date: date(prop(p, "Date")),
     description: richText(prop(p, "Description")),
   }));
+}
+
+export async function getDoc(id: string): Promise<{ doc: Doc; markdown: string }> {
+  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
+  const markdown = await pageMarkdown(id);
+  return {
+    doc: {
+      id: page.id,
+      slug: page.id.replace(/-/g, ""),
+      title: title(prop(page, "Title")),
+      category: select(prop(page, "Category")),
+      date: date(prop(page, "Date")),
+      description: richText(prop(page, "Description")),
+    },
+    markdown,
+  };
 }
 
 export async function getIdeas(): Promise<Idea[]> {
@@ -187,9 +231,26 @@ export async function getIdeas(): Promise<Idea[]> {
   });
   return (res.results as PageObjectResponse[]).map((p) => ({
     id: p.id,
+    slug: p.id.replace(/-/g, ""),
     title: title(prop(p, "Title")),
     owner: select(prop(p, "Owner")),
     priority: select(prop(p, "Priority")),
     notes: richText(prop(p, "Notes")),
   }));
+}
+
+export async function getIdea(id: string): Promise<{ idea: Idea; markdown: string }> {
+  const page = (await notion.pages.retrieve({ page_id: id })) as PageObjectResponse;
+  const markdown = await pageMarkdown(id);
+  return {
+    idea: {
+      id: page.id,
+      slug: page.id.replace(/-/g, ""),
+      title: title(prop(page, "Title")),
+      owner: select(prop(page, "Owner")),
+      priority: select(prop(page, "Priority")),
+      notes: richText(prop(page, "Notes")),
+    },
+    markdown,
+  };
 }

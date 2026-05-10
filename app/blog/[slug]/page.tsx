@@ -1,6 +1,7 @@
 import { getBlogPosts, getBlogPost } from "@/lib/notion";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Markdown from "@/components/Markdown";
 
 export const dynamicParams = false;
 
@@ -64,10 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </span>
         ))}
       </div>
-      <article
-        className="prose prose-invert prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ __html: markdown! }}
-      />
+      <Markdown source={markdown!} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getIdeas, Idea } from "@/lib/notion";
 
 const PRIORITY_COLOUR: Record<string, string> = {
@@ -15,6 +16,7 @@ const PRIORITY_BG: Record<string, string> = {
 const MOCK_IDEAS: Idea[] = [
   {
     id: "1",
+    slug: "1",
     title: "Automated client onboarding flow in Make",
     owner: "Quint",
     priority: "High",
@@ -22,6 +24,7 @@ const MOCK_IDEAS: Idea[] = [
   },
   {
     id: "2",
+    slug: "2",
     title: "Self-serve invoice portal for small clients",
     owner: "Armand",
     priority: "Medium",
@@ -49,14 +52,10 @@ export default async function IdeasPage() {
 
       <div className="space-y-3">
         {ideas.map((idea) => (
-          <div
+          <Link
             key={idea.id}
-            className="border p-5"
-            style={{
-              borderColor: "var(--border)",
-              background: "var(--surface)",
-              borderRadius: "var(--flo-radius-lg)",
-            }}
+            href={`/ideas/${idea.slug}`}
+            className="flo-card block p-5"
           >
             <div className="flex items-start justify-between gap-3 mb-2">
               <h2 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 14, color: "var(--foreground)" }}>
@@ -88,7 +87,7 @@ export default async function IdeasPage() {
                 {idea.notes}
               </p>
             )}
-          </div>
+          </Link>
         ))}
       </div>
     </div>

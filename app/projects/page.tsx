@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getProjects, Project } from "@/lib/notion";
 
 const STATUS_COLOUR: Record<string, string> = {
@@ -19,6 +20,7 @@ const STATUS_BG: Record<string, string> = {
 const MOCK_PROJECTS: Project[] = [
   {
     id: "1",
+    slug: "1",
     name: "Workspace Dashboard",
     status: "Active",
     description: "A real-time ops dashboard pulling data from Airtable, Make, and Zoho Books.",
@@ -27,6 +29,7 @@ const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "2",
+    slug: "2",
     name: "Olympic Paints CSO Insights",
     status: "In Progress",
     description: "Automated reporting pipeline for Olympic Paints field sales data.",
@@ -55,13 +58,11 @@ export default async function ProjectsPage() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         {projects.map((p) => (
-          <div
+          <Link
             key={p.id}
-            className="border p-5"
+            href={`/projects/${p.slug}`}
+            className="flo-card block p-5"
             style={{
-              borderColor: "var(--border)",
-              background: "var(--surface)",
-              borderRadius: "var(--flo-radius-lg)",
               borderLeft: `4px solid ${STATUS_COLOUR[p.status] ?? "var(--flo-n-300)"}`,
             }}
           >
@@ -109,18 +110,7 @@ export default async function ProjectsPage() {
                 </span>
               ))}
             </div>
-            {p.link && (
-              <a
-                href={p.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-block"
-                style={{ fontFamily: "var(--flo-font-ui)", fontSize: 12, fontWeight: 600, color: "var(--flo-teal)" }}
-              >
-                View →
-              </a>
-            )}
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { getDocs, Doc } from "@/lib/notion";
 
 const MOCK_DOCS: Doc[] = [
   {
     id: "1",
+    slug: "1",
     title: "FlowmaticAuto Services Overview",
     category: "Company",
     date: "2026-04-15",
@@ -10,6 +12,7 @@ const MOCK_DOCS: Doc[] = [
   },
   {
     id: "2",
+    slug: "2",
     title: "Make.com Scenario Design Standards",
     category: "Technical",
     date: "2026-03-28",
@@ -46,14 +49,10 @@ export default async function DocsPage() {
           <p className="label-eyebrow mb-4">{cat}</p>
           <div className="space-y-3">
             {items.map((doc) => (
-              <div
+              <Link
                 key={doc.id}
-                className="border p-5 flex items-start justify-between gap-4"
-                style={{
-                  borderColor: "var(--border)",
-                  background: "var(--surface)",
-                  borderRadius: "var(--flo-radius-lg)",
-                }}
+                href={`/docs/${doc.slug}`}
+                className="flo-card block p-5 flex items-start justify-between gap-4"
               >
                 <div>
                   <h3 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>
@@ -66,7 +65,7 @@ export default async function DocsPage() {
                 <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, color: "var(--muted)", whiteSpace: "nowrap" }}>
                   {doc.date}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
