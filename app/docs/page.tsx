@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { getDocs, Doc } from "@/lib/notion";
+import { getDocsWithBodies, DocWithBody } from "@/lib/notion";
+import DocsAccordion from "@/components/DocsAccordion";
 
-const MOCK_DOCS: Doc[] = [
+const MOCK_DOCS: DocWithBody[] = [
   {
     id: "1",
     slug: "1",
@@ -9,6 +9,9 @@ const MOCK_DOCS: Doc[] = [
     category: "Company",
     date: "2026-04-15",
     description: "What we offer, how we price, and how to scope a new engagement.",
+    tags: ["pricing", "services", "scope"],
+    bodyHtml:
+      "<h3>Overview</h3><p>Connect your Notion <strong>Docs</strong> database and your real documents will appear here, fully searchable, with the body inline.</p>",
   },
   {
     id: "2",
@@ -17,59 +20,46 @@ const MOCK_DOCS: Doc[] = [
     category: "Technical",
     date: "2026-03-28",
     description: "Internal conventions for naming, error handling, and data mapping in Make scenarios.",
+    tags: ["make", "standards", "automation"],
+    bodyHtml:
+      "<h3>Naming</h3><p>Each scenario follows the pattern <code>Source → Action → Target</code>. Connect Notion to populate this with your real standards doc.</p>",
   },
 ];
 
-async function getData(): Promise<Doc[]> {
+async function getData(): Promise<DocWithBody[]> {
   if (!process.env.NOTION_DOCS_DB_ID) return MOCK_DOCS;
-  try { return await getDocs(); } catch { return MOCK_DOCS; }
+  try {
+    const docs = await getDocsWithBodies();
+    return docs.length > 0 ? docs : MOCK_DOCS;
+  } catch {
+    return MOCK_DOCS;
+  }
 }
 
 export default async function DocsPage() {
   const docs = await getData();
 
-  const byCategory = docs.reduce<Record<string, Doc[]>>((acc, doc) => {
-    const cat = doc.category || "General";
-    (acc[cat] ??= []).push(doc);
-    return acc;
-  }, {});
-
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <p className="label-eyebrow mb-3">Reference</p>
-      <h1 className="mb-3" style={{ fontFamily: "var(--flo-font-display)", fontWeight: 700, fontSize: 32, color: "var(--foreground)" }}>
+      <h1
+        className="mb-3"
+        style={{
+          fontFamily: "var(--flo-font-display)",
+          fontWeight: 800,
+          fontSize: 36,
+          letterSpacing: "0.02em",
+          textTransform: "uppercase",
+          color: "var(--foreground)",
+        }}
+      >
         Docs
       </h1>
-      <p className="mb-12" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
-        Published reports, specs, and reference documents.
+      <p className="mb-8" style={{ fontFamily: "var(--flo-font-body)", fontWeight: 300, color: "var(--muted)" }}>
+        Searchable knowledge base — methodologies, calculations, decisions, and reference notes. Click any item to expand.
       </p>
 
-      {Object.entries(byCategory).map(([cat, items]) => (
-        <section key={cat} className="mb-10">
-          <p className="label-eyebrow mb-4">{cat}</p>
-          <div className="space-y-3">
-            {items.map((doc) => (
-              <Link
-                key={doc.id}
-                href={`/docs/${doc.slug}`}
-                className="flo-card block p-5 flex items-start justify-between gap-4"
-              >
-                <div>
-                  <h3 style={{ fontFamily: "var(--flo-font-ui)", fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>
-                    {doc.title}
-                  </h3>
-                  <p style={{ fontFamily: "var(--flo-font-body)", fontSize: 13, color: "var(--muted)" }}>
-                    {doc.description}
-                  </p>
-                </div>
-                <p style={{ fontFamily: "var(--flo-font-ui)", fontSize: 11, color: "var(--muted)", whiteSpace: "nowrap" }}>
-                  {doc.date}
-                </p>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+      <DocsAccordion docs={docs} />
     </div>
   );
 }

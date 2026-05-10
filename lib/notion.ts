@@ -95,6 +95,11 @@ export interface Doc {
   category: string;
   date: string;
   description: string;
+  tags: string[];
+}
+
+export interface DocWithBody extends Doc {
+  bodyHtml: string;
 }
 
 export interface Idea {
@@ -203,6 +208,7 @@ export async function getDocs(): Promise<Doc[]> {
     category: select(prop(p, "Category")),
     date: date(prop(p, "Date")),
     description: richText(prop(p, "Description")),
+    tags: multiSelect(prop(p, "Tags")),
   }));
 }
 
@@ -217,9 +223,23 @@ export async function getDoc(id: string): Promise<{ doc: Doc; markdown: string }
       category: select(prop(page, "Category")),
       date: date(prop(page, "Date")),
       description: richText(prop(page, "Description")),
+      tags: multiSelect(prop(page, "Tags")),
     },
     markdown,
   };
+}
+
+export async function getDocsWithBodies(): Promise<DocWithBody[]> {
+  const { marked } = await import("marked");
+  const docs = await getDocs();
+  const withBodies = await Promise.all(
+    docs.map(async (d) => {
+      const md = await pageMarkdown(d.id);
+      const bodyHtml = await marked.parse(md || "*No content yet.*", { gfm: true, breaks: true });
+      return { ...d, bodyHtml };
+    })
+  );
+  return withBodies;
 }
 
 export async function getIdeas(): Promise<Idea[]> {
